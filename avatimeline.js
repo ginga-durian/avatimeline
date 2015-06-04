@@ -1,4 +1,4 @@
-function autoScroll(tl, is_auto) {
+var autoScroll = function (tl, is_auto) {
   if (is_auto == true) {
     tl.moveTo(tl.getCurrentTime(), {
       animate: false
@@ -7,7 +7,7 @@ function autoScroll(tl, is_auto) {
 }
 
 function refresh(tl, time) {
-  tl.setCurrentTime(base_time.clone().add(time, 's'));
+  tl.setCurrentTime(BASE_TIME.clone().add(time_half_canvas,'s').add(time, 's'));
 }
 
 function setDiffusionRay(items, time) {
@@ -15,7 +15,7 @@ function setDiffusionRay(items, time) {
     id: 'diff_ray_' + c_diff_ray,
     group: 'diff_ray',
     content: 'レイ',
-    start: base_time.clone().add(time, 's'),
+    start: BASE_TIME.clone().add(time, 's'),
     type: 'point'
   });
   c_diff_ray++;
@@ -26,14 +26,14 @@ function setHomingMissile(items, time, pusher) {
     id: 'h_missile_' + c_h_missile,
     group: 'h_missile',
     content: 'ホーミング',
-    start: base_time.clone().add(time, 's'),
+    start: BASE_TIME.clone().add(time, 's'),
     type: 'point'
   }, {
     id: 'h_missile_' + c_h_missile + '_bg',
     group: 'h_missile',
     content: pusher,
-    start: base_time.clone().add(time, 's').subtract(5, 's'),
-    end: base_time.clone().add(time, 's'),
+    start: BASE_TIME.clone().add(time, 's').subtract(5, 's'),
+    end: BASE_TIME.clone().add(time, 's'),
     type: 'background'
   }]);
   c_h_missile++;
@@ -44,13 +44,13 @@ function setGaseousBomb(items, time) {
     id: 'g_bomb_' + c_g_bomb,
     group: 'g_bomb',
     content: '気化',
-    start: base_time.clone().add(time, 's'),
+    start: BASE_TIME.clone().add(time, 's'),
     type: 'point'
   }, {
     id: 'g_bomb_' + c_g_bomb + '_bg',
     group: 'g_bomb',
-    start: base_time.clone().add(time, 's').subtract(5, 's'),
-    end: base_time.clone().add(time, 's'),
+    start: BASE_TIME.clone().add(time, 's').subtract(5, 's'),
+    end: BASE_TIME.clone().add(time, 's'),
     type: 'background'
   }]);
   c_g_bomb++;
@@ -61,8 +61,8 @@ function setAllaganField(items, time) {
     id: 'a_field_' + c_a_field,
     group: 'a_field',
     content: 'AF',
-    start: base_time.clone().add(time, 's').add(2, 's'),
-    end: base_time.clone().add(time, 's').add(30, 's'),
+    start: BASE_TIME.clone().add(time, 's').add(2, 's'),
+    end: BASE_TIME.clone().add(time, 's').add(30, 's'),
     type: 'range'
   });
   c_a_field++;
@@ -73,8 +73,8 @@ function setBallisticMissile(items, time) {
     id: 'b_missile_' + c_b_missile,
     group: 'b_missile',
     content: 'BM',
-    start: base_time.clone().add(time, 's'),
-    end: base_time.clone().add(time, 's').add(3, 's'),
+    start: BASE_TIME.clone().add(time, 's'),
+    end: BASE_TIME.clone().add(time, 's').add(3, 's'),
     type: 'range'
   });
   c_b_missile++;
@@ -85,8 +85,8 @@ function spawnMine(items, time_start) {
     id: 'mine_' + c_mine,
     group: 'mine',
     content: '地雷',
-    start: base_time.clone().add(time_start, 's'),
-    end: base_time.clone().add(time_start, 's').add(15, 's'),
+    start: BASE_TIME.clone().add(time_start, 's'),
+    end: BASE_TIME.clone().add(time_start, 's').add(15, 's'),
     type: 'range'
   });
   c_mine++;
@@ -97,8 +97,8 @@ function spawnDreadnaught(items, time_start) {
     id: 'dnaught_' + c_dnaught,
     group: 'dnaught',
     content: 'ドレッド',
-    start: base_time.clone().add(time_start, 's'),
-    end: base_time.clone().add(time_start, 's').add(30, 's'),
+    start: BASE_TIME.clone().add(time_start, 's'),
+    end: BASE_TIME.clone().add(time_start, 's').add(30, 's'),
     type: 'range'
   }]);
   c_dnaught++;
@@ -110,11 +110,11 @@ function setMineTower(items, time_start, time_enter, mb, quarter) {
       id: 'tw_mine_' + c_tw_mine,
       group: 'tw_mine',
       content: mb,
-      start: base_time.clone().add(time_start, 's'),
-      end: base_time.clone().add(time_start, 's').add(duration, 's'),
+      start: BASE_TIME.clone().add(time_start, 's'),
+      end: BASE_TIME.clone().add(time_start, 's').add(duration, 's'),
       type: 'background'
     }
-    //    { id: 'tw_mine_'+c_tw_mine+'_ent', group: 'tw_mine', content: mb, start: base_time.clone().add(time_enter,'s'), type: 'point' }
+    //    { id: 'tw_mine_'+c_tw_mine+'_ent', group: 'tw_mine', content: mb, start: BASE_TIME.clone().add(time_enter,'s'), type: 'point' }
   ]);
   spawnMine(items, time_start + duration);
   c_tw_mine++;
@@ -126,11 +126,11 @@ function setDreadnaughtTower(items, time_start, time_enter, mb, quarter) {
       id: 'tw_dnaught_' + c_tw_dnaught,
       group: 'tw_dnaught',
       content: mb,
-      start: base_time.clone().add(time_start, 's'),
-      end: base_time.clone().add(time_start, 's').add(duration, 's'),
+      start: BASE_TIME.clone().add(time_start, 's'),
+      end: BASE_TIME.clone().add(time_start, 's').add(duration, 's'),
       type: 'background'
     }
-    //    { id: 'tw_dnaught_'+c_tw_dnaught+'_ent', group: 'tw_dnaught', content: mb, start: base_time.clone().add(time_enter,'s'), type: 'point' }
+    //    { id: 'tw_dnaught_'+c_tw_dnaught+'_ent', group: 'tw_dnaught', content: mb, start: BASE_TIME.clone().add(time_enter,'s'), type: 'point' }
   ]);
   spawnDreadnaught(items, time_start + duration);
   c_tw_dnaught++;
@@ -141,8 +141,8 @@ function setHpdownTower1(items, time_start, mb, quarter) {
   items.add([{
     id: 'tw_hpdown_' + c_tw_hpdown,
     group: 'tw_hpdown1',
-    start: base_time.clone().add(time_start, 's'),
-    end: base_time.clone().add(time_start, 's').add(duration, 's'),
+    start: BASE_TIME.clone().add(time_start, 's'),
+    end: BASE_TIME.clone().add(time_start, 's').add(duration, 's'),
     content: mb,
     type: 'background'
   }]);
@@ -154,8 +154,8 @@ function setHpdownTower2(items, time_start, mb, quarter) {
   items.add([{
     id: 'tw_hpdown_' + c_tw_hpdown,
     group: 'tw_hpdown2',
-    start: base_time.clone().add(time_start, 's'),
-    end: base_time.clone().add(time_start, 's').add(duration, 's'),
+    start: BASE_TIME.clone().add(time_start, 's'),
+    end: BASE_TIME.clone().add(time_start, 's').add(duration, 's'),
     content: mb,
     type: 'background'
   }]);
@@ -166,8 +166,8 @@ function setSnowflakeTower1(items, time_start, time_end, mb) {
   items.add([{
     id: 'tw_sflake_' + c_tw_sflake,
     group: 'tw_sflake1',
-    start: base_time.clone().add(time_start, 's'),
-    end: base_time.clone().add(time_end, 's'),
+    start: BASE_TIME.clone().add(time_start, 's'),
+    end: BASE_TIME.clone().add(time_end, 's'),
     content: mb,
     type: 'background'
   }]);
@@ -178,8 +178,8 @@ function setSnowflakeTower2(items, time_start, time_end, mb) {
   items.add([{
     id: 'tw_sflake_' + c_tw_sflake,
     group: 'tw_sflake2',
-    start: base_time.clone().add(time_start, 's'),
-    end: base_time.clone().add(time_end, 's'),
+    start: BASE_TIME.clone().add(time_start, 's'),
+    end: BASE_TIME.clone().add(time_end, 's'),
     content: mb,
     type: 'background'
   }]);
@@ -191,8 +191,8 @@ function setSlackTime(items, time_start, time_end, mb, group) {
   items.add([{
     id: group + c_slack,
     group: group,
-    start: base_time.clone().add(time_start, 's'),
-    end: base_time.clone().add(time_end, 's'),
+    start: BASE_TIME.clone().add(time_start, 's'),
+    end: BASE_TIME.clone().add(time_end, 's'),
     content: mb,
     type: 'range'
   }]);
@@ -215,7 +215,10 @@ c_tw_hpdown = 0;
 c_slack = 0;
 
 var is_auto = true;
-base_time = moment([2015, 1, 1, 0, 0, 0, 0]);
+var BASE_TIME = moment([2015, 1, 1, 0, 0, 0, 0]);
+
+// 中央から左端までの距離（時間）
+var time_half_canvas = 30;
 
 // create a data set with groups
 var names = ['HM', '気化', 'AF', 'BM', 'ドレッド', '地雷○', '全体攻撃×', 'ドレッド□', '低下△'];
@@ -445,10 +448,13 @@ var timeline = new vis.Timeline(container);
 timeline.setOptions(options);
 timeline.setGroups(groups);
 timeline.setItems(items);
-timeline.setCurrentTime(base_time);
+timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas,'s'));
+timeline.setWindow(BASE_TIME.clone().subtract(3,'s'), BASE_TIME.clone().add(time_half_canvas*2,'s'));
 
 setInterval("autoScroll(timeline,is_auto)", 1000);
-setInterval("timeline.setCustomTime(timeline.getCurrentTime())", 1000);
+setInterval(function(){
+  timeline.setCustomTime(moment(timeline.getCurrentTime()).subtract(time_half_canvas,'s').toDate());
+  }, 1000);
 
 document.getElementById('auto_scroll').onclick = function() {
   is_auto = !is_auto
