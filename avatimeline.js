@@ -1,4 +1,4 @@
-var autoScroll = function (tl, is_auto) {
+var autoScroll = function(tl, is_auto) {
   if (is_auto == true) {
     tl.moveTo(tl.getCurrentTime(), {
       animate: false
@@ -7,7 +7,70 @@ var autoScroll = function (tl, is_auto) {
 }
 
 function refresh(tl, time) {
-  tl.setCurrentTime(BASE_TIME.clone().add(time_half_canvas,'s').add(time, 's'));
+  tl.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(time, 's'));
+}
+
+// time to phase
+function t2ph(time) {
+  for (var i = 0; i < ph_tab.length; i++) {
+    if (ph_tab[i] > time) {
+      return i;
+    }
+  }
+  // not found
+  return 0;
+}
+
+function towerTable() {
+  var s = 0;
+  var switcher = function() {
+    s++;
+    if (s > 3)
+      s = 0;
+  }
+
+  function setter(mark, time, player) {
+    tw_tab[t2ph(time) - 1].push({
+      mark: mark,
+      time: time,
+      player: player
+    });
+  }
+  return setter;
+}
+
+var widget = function(tl, hmt) {
+  var timeline = tl;
+  var hm_tab = hmt;
+  var currentTimeToSec = function() {
+    var curr_time = moment(timeline.getCurrentTime()).unix() - BASE_TIME.unix() - time_half_canvas;
+    return curr_time;
+  }
+
+  function update() {
+    curr_time = currentTimeToSec();
+    var phase = t2ph(curr_time);
+    for (var i = 0; i < hm_tab.length; i++) {
+      if (hm_tab[i][0] > curr_time) {
+        $("p#homing").html("HM:" + hm_tab[i][1] + "(" + (hm_tab[i][0] - curr_time) + ")");
+        break;
+      }
+    }
+
+    $("p#phase").html("Phase" + phase);
+
+    var l = tw_tab[phase-1].length;
+    for (var i = 0; i < 4; i++) {
+      if(i < l) {
+        $("p#tw" + (i+1) + " > span.tw_mark").html(tw_tab[phase - 1][i].mark);
+        $("p#tw" + (i+1) + " > span.player").html(tw_tab[phase - 1][i].player);
+      } else {
+        $("p#tw" + (i+1) + " > span.tw_mark").html("");
+      }
+
+    }
+  };
+  return update;
 }
 
 function setDiffusionRay(items, time) {
@@ -22,6 +85,7 @@ function setDiffusionRay(items, time) {
 }
 
 function setHomingMissile(items, time, pusher) {
+  hm_tab.push([time, pusher]);
   items.add([{
     id: 'h_missile_' + c_h_missile,
     group: 'h_missile',
@@ -117,6 +181,7 @@ function setMineTower(items, time_start, time_enter, mb, quarter) {
     //    { id: 'tw_mine_'+c_tw_mine+'_ent', group: 'tw_mine', content: mb, start: BASE_TIME.clone().add(time_enter,'s'), type: 'point' }
   ]);
   spawnMine(items, time_start + duration);
+  twTabSetter('○', time_start, mb);
   c_tw_mine++;
 }
 
@@ -133,6 +198,7 @@ function setDreadnaughtTower(items, time_start, time_enter, mb, quarter) {
     //    { id: 'tw_dnaught_'+c_tw_dnaught+'_ent', group: 'tw_dnaught', content: mb, start: BASE_TIME.clone().add(time_enter,'s'), type: 'point' }
   ]);
   spawnDreadnaught(items, time_start + duration);
+  twTabSetter('□', time_start, mb);
   c_tw_dnaught++;
 }
 
@@ -146,6 +212,7 @@ function setHpdownTower1(items, time_start, mb, quarter) {
     content: mb,
     type: 'background'
   }]);
+  twTabSetter('△', time_start, mb);
   c_tw_hpdown++;
 }
 
@@ -159,6 +226,7 @@ function setHpdownTower2(items, time_start, mb, quarter) {
     content: mb,
     type: 'background'
   }]);
+  twTabSetter('△', time_start, mb);
   c_tw_hpdown++;
 }
 
@@ -171,6 +239,7 @@ function setSnowflakeTower1(items, time_start, time_end, mb) {
     content: mb,
     type: 'background'
   }]);
+  twTabSetter('×', time_start, mb);
   c_tw_sflake++;
 }
 
@@ -183,11 +252,12 @@ function setSnowflakeTower2(items, time_start, time_end, mb) {
     content: mb,
     type: 'background'
   }]);
+  twTabSetter('×', time_start, mb);
   c_tw_sflake++;
 }
 
 
-function setSlackTime(items, time_start, time_end, mb, group) {
+function setCriticalSpan(items, time_start, time_end, mb, group) {
   items.add([{
     id: group + c_slack,
     group: group,
@@ -223,6 +293,10 @@ var time_half_canvas = 30;
 // create a data set with groups
 var names = ['HM', '気化', 'AF', 'BM', 'ドレッド', '地雷○', '全体攻撃×', 'ドレッド□', '低下△'];
 var member = ['戦', 'ナ', '白', '学', 'モ', '竜', '詩', '黒'];
+
+// ウィジェットのための時刻表
+var hm_tab = [];
+
 var groups = new vis.DataSet([{
   id: 'diff_ray',
   content: 'レイ',
@@ -280,6 +354,17 @@ var groups = new vis.DataSet([{
 }, ]);
 
 
+
+var ph_tab = [0, 86, 164, 243, 352, 450, 548, 648];
+var twTabSetter;
+var tw_tab = Array(7);
+var crit_tab = Array(7);
+for (var i = 0; i < tw_tab.length; i++) {
+  tw_tab[i] = Array();
+  crit_tab[i] = Array(4);
+}
+
+twTabSetter = towerTable();
 
 // create a dataset with items
 // homing_missile:ホーミングミサイル, gaseous_bomb:気化爆弾, 防衛反応:diffensive reaction, HPダウン:hpdown, af爆発: critical surge
@@ -416,12 +501,12 @@ setSnowflakeTower2(items, 548, 609, ['モ']);
 
 
 /* 防衛反応塔で特別に踏む時間の指定がある場合 */
-setSlackTime(items, 123, 130, '黒', 'tw_sflake1');
-setSlackTime(items, 403, 407, '戦', 'tw_sflake1');
-setSlackTime(items, 483, 486, 'ナ', 'tw_sflake1');
-setSlackTime(items, 523, 526, '戦', 'tw_sflake2');
-setSlackTime(items, 563, 567, 'ナ', 'tw_sflake1');
-setSlackTime(items, 603, 607, '戦', 'tw_sflake2');
+setCriticalSpan(items, 123, 130, '黒', 'tw_sflake1');
+setCriticalSpan(items, 403, 407, '戦', 'tw_sflake1');
+setCriticalSpan(items, 483, 486, 'ナ', 'tw_sflake1');
+setCriticalSpan(items, 523, 526, '戦', 'tw_sflake2');
+setCriticalSpan(items, 563, 567, 'ナ', 'tw_sflake1');
+setCriticalSpan(items, 603, 607, '戦', 'tw_sflake2');
 
 // create visualization
 var container = document.getElementById('visualization');
@@ -448,13 +533,20 @@ var timeline = new vis.Timeline(container);
 timeline.setOptions(options);
 timeline.setGroups(groups);
 timeline.setItems(items);
-timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas,'s'));
-timeline.setWindow(BASE_TIME.clone().subtract(3,'s'), BASE_TIME.clone().add(time_half_canvas*2,'s'));
+timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's'));
+timeline.setWindow(BASE_TIME.clone().subtract(3, 's'), BASE_TIME.clone().add(time_half_canvas * 2, 's'));
+
+hm_tab.unshift([0, ""]);
+hm_tab.push([648, ""]);
+
+var widgetUpdater = widget(timeline, hm_tab);
+console.log(tw_tab);
 
 setInterval("autoScroll(timeline,is_auto)", 1000);
-setInterval(function(){
-  timeline.setCustomTime(moment(timeline.getCurrentTime()).subtract(time_half_canvas,'s').toDate());
-  }, 1000);
+setInterval(function() {
+  timeline.setCustomTime(moment(timeline.getCurrentTime()).subtract(time_half_canvas, 's').toDate());
+}, 1000);
+setInterval("widgetUpdater()", 1000);
 
 document.getElementById('auto_scroll').onclick = function() {
   is_auto = !is_auto

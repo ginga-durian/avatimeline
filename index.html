@@ -1,11 +1,13 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>アバター屠る君</title>
 
   <style>
-    body, html {
+    body,
+    html {
       font-family: arial, sans-serif;
       font-size: 11pt;
     }
@@ -19,23 +21,77 @@
     div.vlabel {
       text-align: right;
     }
+
+    div#widget {
+      position: fixed;
+      background-color: #b1b1b1;
+      width: 95%;
+      bottom: 10px;
+      border-radius: 10px;
+      z-index: -1;
+        }
+
+    p#phase {
+      font-family: Verdana;
+      font-size: 28pt;
+      margin-left: 20px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    p.tower {
+      font-family: Meiryo;
+      margin-left: 30px;
+    }
+
+    p#homing {
+      font-family: Meiryo;
+      margin-left: 30px;
+    }
+
+    span.tw_mark {
+      font-size: 26pt;
+    }
+
+    span.player {
+      font-size: 20pt;
+      background-color: #dfdfdf;
+    }
+
+    span.critical {
+      font-size: 20pt;
+      background-color: #ffcfcf;
+    }
+
+
   </style>
 
   <!-- note: moment.js must be loaded before vis.js, else vis.js uses its embedded version of moment.js -->
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 
   <script src="./dist/vis.js"></script>
   <link href="./dist/vis.css" rel="stylesheet" type="text/css" />
 </head>
-<body>
-<div id="visualization">
-    <div class="menu">
-        <input type="button" id="refresh" value="0秒からスタート"/>
-        <input type="button" id="refresh_10s" value="-10秒からスタート"/>
-        <input type="button" id="auto_scroll" value="オートスクロールON/OFF"/>
-    </div>
-</div>
 
-<script src="./avatimeline.js"></script>
+<body>
+  <div id="visualization">
+    <div class="menu">
+      <input type="button" id="refresh" value="0秒からスタート" />
+      <input type="button" id="refresh_10s" value="-10秒からスタート" />
+      <input type="button" id="auto_scroll" value="オートスクロールON/OFF" />
+    </div>
+  </div>
+  <script src="./avatimeline.js"></script>
+  <div id="widget">
+    <p id="phase">Phase1</p>
+    <hr>
+    <p id="homing">HM:戦<p>
+    <p class="tower" id="tw1"><span class="tw_mark"></span> <span class="player"></span> <span class="critical"></span></p>
+    <p class="tower" id="tw2"><span class="tw_mark"></span> <span class="player"></span></p>
+    <p class="tower" id="tw3"><span class="tw_mark"></span> <span class="player"></span></p>
+    <p class="tower" id="tw4"><span class="tw_mark"></span> <span class="player"></span></p>
+  </div>
 </body>
+
 </html>
