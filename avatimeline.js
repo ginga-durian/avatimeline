@@ -82,200 +82,6 @@ var widget = function(tl, hmt) {
   return update;
 }
 
-function setDiffusionRay(items, time) {
-  items.add({
-    id: 'diff_ray_' + c_diff_ray,
-    group: 'diff_ray',
-    content: 'レイ',
-    start: BASE_TIME.clone().add(time, 's'),
-    type: 'point'
-  });
-  c_diff_ray++;
-}
-
-function setHomingMissile(items, time, pusher) {
-  hm_tab.push([time, pusher]);
-  items.add([{
-    id: 'h_missile_' + c_h_missile,
-    group: 'h_missile',
-    content: 'ホーミング',
-    start: BASE_TIME.clone().add(time, 's'),
-    type: 'point'
-  }, {
-    id: 'h_missile_' + c_h_missile + '_bg',
-    group: 'h_missile',
-    content: pusher,
-    start: BASE_TIME.clone().add(time, 's').subtract(5, 's'),
-    end: BASE_TIME.clone().add(time, 's'),
-    type: 'background'
-  }]);
-  c_h_missile++;
-}
-
-function setGaseousBomb(items, time) {
-  items.add([{
-    id: 'g_bomb_' + c_g_bomb,
-    group: 'g_bomb',
-    content: '気化',
-    start: BASE_TIME.clone().add(time, 's'),
-    type: 'point'
-  }, {
-    id: 'g_bomb_' + c_g_bomb + '_bg',
-    group: 'g_bomb',
-    start: BASE_TIME.clone().add(time, 's').subtract(5, 's'),
-    end: BASE_TIME.clone().add(time, 's'),
-    type: 'background'
-  }]);
-  c_g_bomb++;
-}
-
-function setAllaganField(items, time) {
-  items.add({
-    id: 'a_field_' + c_a_field,
-    group: 'a_field',
-    content: 'AF',
-    start: BASE_TIME.clone().add(time, 's').add(2, 's'),
-    end: BASE_TIME.clone().add(time, 's').add(30, 's'),
-    type: 'range'
-  });
-  c_a_field++;
-}
-
-function setBallisticMissile(items, time) {
-  items.add({
-    id: 'b_missile_' + c_b_missile,
-    group: 'b_missile',
-    content: 'BM',
-    start: BASE_TIME.clone().add(time, 's'),
-    end: BASE_TIME.clone().add(time, 's').add(3, 's'),
-    type: 'range'
-  });
-  c_b_missile++;
-}
-
-function spawnMine(items, time_start) {
-  items.add({
-    id: 'mine_' + c_mine,
-    group: 'mine',
-    content: '地雷',
-    start: BASE_TIME.clone().add(time_start, 's'),
-    end: BASE_TIME.clone().add(time_start, 's').add(15, 's'),
-    type: 'range'
-  });
-  c_mine++;
-}
-
-function spawnDreadnaught(items, time_start) {
-  items.add([{
-    id: 'dnaught_' + c_dnaught,
-    group: 'dnaught',
-    content: 'ドレッド',
-    start: BASE_TIME.clone().add(time_start, 's'),
-    end: BASE_TIME.clone().add(time_start, 's').add(30, 's'),
-    type: 'range'
-  }]);
-  c_dnaught++;
-}
-
-function setMineTower(items, time_start, time_enter, mb, quarter) {
-  var duration = quarter * (4 - mb.length);
-  items.add([{
-      id: 'tw_mine_' + c_tw_mine,
-      group: 'tw_mine',
-      content: mb,
-      start: BASE_TIME.clone().add(time_start, 's'),
-      end: BASE_TIME.clone().add(time_start, 's').add(duration, 's'),
-      type: 'background'
-    }
-    //    { id: 'tw_mine_'+c_tw_mine+'_ent', group: 'tw_mine', content: mb, start: BASE_TIME.clone().add(time_enter,'s'), type: 'point' }
-  ]);
-  spawnMine(items, time_start + duration);
-  twTabSetter('○', time_start, mb);
-  c_tw_mine++;
-}
-
-function setDreadnaughtTower(items, time_start, time_enter, mb, quarter) {
-  var duration = quarter * (4 - mb.length);
-  items.add([{
-      id: 'tw_dnaught_' + c_tw_dnaught,
-      group: 'tw_dnaught',
-      content: mb,
-      start: BASE_TIME.clone().add(time_start, 's'),
-      end: BASE_TIME.clone().add(time_start, 's').add(duration, 's'),
-      type: 'background'
-    }
-    //    { id: 'tw_dnaught_'+c_tw_dnaught+'_ent', group: 'tw_dnaught', content: mb, start: BASE_TIME.clone().add(time_enter,'s'), type: 'point' }
-  ]);
-  spawnDreadnaught(items, time_start + duration);
-  twTabSetter('□', time_start, mb);
-  c_tw_dnaught++;
-}
-
-function setHpdownTower1(items, time_start, mb, quarter) {
-  var duration = quarter * (4 - mb.length);
-  items.add([{
-    id: 'tw_hpdown_' + c_tw_hpdown,
-    group: 'tw_hpdown1',
-    start: BASE_TIME.clone().add(time_start, 's'),
-    end: BASE_TIME.clone().add(time_start, 's').add(duration, 's'),
-    content: mb,
-    type: 'background'
-  }]);
-  twTabSetter('△', time_start, mb);
-  c_tw_hpdown++;
-}
-
-function setHpdownTower2(items, time_start, mb, quarter) {
-  var duration = quarter * (4 - mb.length);
-  items.add([{
-    id: 'tw_hpdown_' + c_tw_hpdown,
-    group: 'tw_hpdown2',
-    start: BASE_TIME.clone().add(time_start, 's'),
-    end: BASE_TIME.clone().add(time_start, 's').add(duration, 's'),
-    content: mb,
-    type: 'background'
-  }]);
-  twTabSetter('△', time_start, mb);
-  c_tw_hpdown++;
-}
-
-function setSnowflakeTower1(items, time_start, time_end, mb, crit) {
-  items.add([{
-    id: 'tw_sflake_' + c_tw_sflake,
-    group: 'tw_sflake1',
-    start: BASE_TIME.clone().add(time_start, 's'),
-    end: BASE_TIME.clone().add(time_end, 's'),
-    content: mb,
-    type: 'background'
-  }]);
-  twTabSetter('×', time_start, mb);
-  crit_tab[t2ph(time_start) - 1].pop(); // 姑息な手
-  if (crit != null) {
-    setCriticalSpan(items, crit.since, crit.until, crit.player, 'tw_sflake1'); // 下と統合予定
-    critSpanSetter(time_start, crit);
-  }
-  c_tw_sflake++;
-}
-
-function setSnowflakeTower2(items, time_start, time_end, mb, crit) {
-  items.add([{
-    id: 'tw_sflake_' + c_tw_sflake,
-    group: 'tw_sflake2',
-    start: BASE_TIME.clone().add(time_start, 's'),
-    end: BASE_TIME.clone().add(time_end, 's'),
-    content: mb,
-    type: 'background'
-  }]);
-  twTabSetter('×', time_start, mb);
-  crit_tab[t2ph(time_start) - 1].pop(); // 姑息な手
-  if (crit != null) {
-    setCriticalSpan(items, crit.since, crit.until, crit.player, 'tw_sflake2'); // 下と統合予定
-    critSpanSetter(time_start, crit);
-  }
-  c_tw_sflake++;
-}
-
-
 function setCriticalSpan(items, time_start, time_end, mb, group) {
   items.add([{
     id: group + c_slack,
@@ -287,20 +93,165 @@ function setCriticalSpan(items, time_start, time_end, mb, group) {
   }]);
   c_slack++;
 }
-
-
-c_diff_ray = 0;
-c_h_missile = 0;
-c_g_bomb = 0;
-c_a_field = 0;
-c_b_missile = 0;
-c_mine = 0;
-c_dnaught = 0;
-c_tw_mine = 0;
-c_tw_dnaught = 0;
-c_tw_sflake = 0;
-c_tw_hpdown = 0;
 c_slack = 0;
+
+function itemSetterTemplate(item, id, group, content, type) {
+  var item = item;
+  var counter = 0;
+  var def = {
+    id: id,
+    group: group,
+    content: content,
+    type: type
+  }
+
+  function set(content, start, end) {
+    if (def.type == 'point') {
+      items.add({
+        id: def.id + counter,
+        group: def.group,
+        content: def.content + content,
+        start: BASE_TIME.clone().add(start, 's'),
+        type: def.type
+      });
+    } else {
+      items.add({
+        id: def.id + counter,
+        group: def.group,
+        content: def.content + content,
+        start: BASE_TIME.clone().add(start, 's'),
+        end: BASE_TIME.clone().add(end, 's'),
+        type: def.type
+      });
+    }
+    counter++;
+  }
+  return set;
+}
+
+var diffusionRaySetter = (function() {
+  var setter = itemSetterTemplate(items, 'diff_ray_', 'diff_ray', 'レイ', 'point');
+
+  function set(start) {
+    setter('', start);
+  }
+  return set;
+})();
+
+var homingMissileSetter = (function() {
+  var pSetter = itemSetterTemplate(items, 'h_missile_', 'h_missile', 'ホーミング', 'point');
+  var bSetter = itemSetterTemplate(items, 'h_missile_bg_', 'h_missile', '', 'background');
+
+  function set(start, player) {
+    hm_tab.push([start, player]);
+    pSetter('', start);
+    bSetter(player, start - 5, start);
+  }
+  return set;
+})();
+
+var gaseousBombSetter = (function() {
+  var pSetter = itemSetterTemplate(items, 'g_bomb_', 'g_bomb', '気化', 'point');
+  var bSetter = itemSetterTemplate(items, 'g_bomb_bg_', 'g_bomb', '', 'background');
+
+  function set(start) {
+    pSetter('', start);
+    bSetter('', start - 5, start);
+  }
+  return set;
+})();
+
+var allaganFieldSetter = (function() {
+  var setter = itemSetterTemplate(items, 'a_field_', 'a_field', 'AF', 'range');
+
+  function set(start) {
+    setter('', start + 2, start + 30);
+  }
+  return set;
+})();
+
+var ballisticMissileSetter = (function() {
+  var setter = itemSetterTemplate(items, 'b_missile_', 'b_missile', 'BM', 'range');
+
+  function set(start) {
+    setter('', start, start + 3);
+  }
+  return set;
+})();
+
+var mineTowerSetter = (function() {
+  var bSetter = itemSetterTemplate(items, 'tw_mine_', 'tw_mine', '', 'background');
+  var rSetter = itemSetterTemplate(items, 'mine_', 'mine', '地雷', 'range');
+
+  function set(start, end, player) {
+    bSetter(player, start, end);
+    rSetter('', end, end + 15);
+    twTabSetter('○', start, player);
+  }
+  return set;
+})();
+
+var dreadnaughtTowerSetter = (function() {
+  var bSetter = itemSetterTemplate(items, 'tw_dnaught_', 'tw_dnaught', '', 'background');
+  var rSetter = itemSetterTemplate(items, 'dnaught_', 'dnaught', 'ドレッド', 'range');
+
+  function set(start, end, player) {
+    bSetter(player, start, end);
+    rSetter('', end, end + 15);
+    twTabSetter('□', start, player);
+  }
+  return set;
+})();
+
+var hpdownTowerSetter1 = (function() {
+  var setter = itemSetterTemplate(items, 'tw_hpdown1_', 'tw_hpdown1', '', 'background');
+
+  function set(start, end, player) {
+    setter(player, start, end);
+    twTabSetter('△', start, player);
+  }
+  return set;
+})();
+
+var hpdownTowerSetter2 = (function() {
+  var setter = itemSetterTemplate(items, 'tw_hpdown2_', 'tw_hpdown2', '', 'background');
+
+  function set(start, end, player) {
+    setter(player, start, end);
+    twTabSetter('△', start, player);
+  }
+  return set;
+})();
+
+var snowflakeTowerSetter1 = (function() {
+  var setter = itemSetterTemplate(items, 'tw_sflake1_', 'tw_sflake1', '', 'background');
+
+  function set(start, end, player, crit) {
+    setter(player, start, end);
+    twTabSetter('×', start, player);
+    crit_tab[t2ph(start) - 1].pop(); // 姑息な手
+    if (crit != null) {
+      setCriticalSpan(items, crit.since, crit.until, crit.player, 'tw_sflake1'); // 下と統合予定
+      critSpanSetter(start, crit);
+    }
+  }
+  return set;
+})();
+
+var snowflakeTowerSetter2 = (function() {
+  var setter = itemSetterTemplate(items, 'tw_sflake2_', 'tw_sflake2', '', 'background');
+
+  function set(start, end, player, crit) {
+    setter(player, start, end);
+    twTabSetter('×', start, player);
+    crit_tab[t2ph(start) - 1].pop(); // 姑息な手
+    if (crit != null) {
+      setCriticalSpan(items, crit.since, crit.until, crit.player, 'tw_sflake2'); // 下と統合予定
+      critSpanSetter(start, crit);
+    }
+  }
+  return set;
+})();
 
 var is_auto = true;
 var BASE_TIME = moment([2015, 1, 1, 0, 0, 0, 0]);
@@ -372,7 +323,6 @@ var groups = new vis.DataSet([{
 }, ]);
 
 var ph_tab = [0, 86, 164, 243, 352, 450, 548, 648];
-var twTabSetter;
 var tw_tab = Array(7);
 var crit_tab = Array(7);
 for (var i = 0; i < tw_tab.length; i++) {
@@ -386,132 +336,126 @@ for (var i = 0; i < tw_tab.length; i++) {
 var items = new vis.DataSet([]);
 
 /* ディフュージョンレイ */
-setDiffusionRay(items, 5); // P1
-setDiffusionRay(items, 26);
-setDiffusionRay(items, 41);
-setDiffusionRay(items, 56);
-setDiffusionRay(items, 75);
-setDiffusionRay(items, 94); // P2
-setDiffusionRay(items, 111);
-setDiffusionRay(items, 125);
-setDiffusionRay(items, 142);
-setDiffusionRay(items, 174); // P3
-setDiffusionRay(items, 191);
-setDiffusionRay(items, 205);
-setDiffusionRay(items, 222);
-setDiffusionRay(items, 255); // P4
-setDiffusionRay(items, 271);
-setDiffusionRay(items, 285);
-setDiffusionRay(items, 302);
-setDiffusionRay(items, 316);
-setDiffusionRay(items, 356); // P5
-setDiffusionRay(items, 396);
-setDiffusionRay(items, 436);
-setDiffusionRay(items, 477); // P6
-setDiffusionRay(items, 516);
-setDiffusionRay(items, 556); // P7
-setDiffusionRay(items, 597);
-setDiffusionRay(items, 637);
+diffusionRaySetter(5); // P1
+diffusionRaySetter(26);
+diffusionRaySetter(41);
+diffusionRaySetter(56);
+diffusionRaySetter(75);
+diffusionRaySetter(94); // P2
+diffusionRaySetter(111);
+diffusionRaySetter(125);
+diffusionRaySetter(142);
+diffusionRaySetter(174); // P3
+diffusionRaySetter(191);
+diffusionRaySetter(205);
+diffusionRaySetter(222);
+diffusionRaySetter(255); // P4
+diffusionRaySetter(271);
+diffusionRaySetter(285);
+diffusionRaySetter(302);
+diffusionRaySetter(316);
+diffusionRaySetter(356); // P5
+diffusionRaySetter(396);
+diffusionRaySetter(436);
+diffusionRaySetter(477); // P6
+diffusionRaySetter(516);
+diffusionRaySetter(556); // P7
+diffusionRaySetter(597);
+diffusionRaySetter(637);
 
 /* ホーミングミサイル */
-setHomingMissile(items, 25, 'ナ'); // P1
-setHomingMissile(items, 65, '詩');
-setHomingMissile(items, 102, 'ナ'); // P2
-setHomingMissile(items, 121, '戦');
-setHomingMissile(items, 141, '戦');
-setHomingMissile(items, 161, 'ナ');
-setHomingMissile(items, 181, 'ナ'); // P3
-setHomingMissile(items, 201, '全');
-setHomingMissile(items, 221, 'ナ');
-setHomingMissile(items, 236, 'ナ');
-setHomingMissile(items, 262, '詩'); // P4
-setHomingMissile(items, 276, '戦');
-setHomingMissile(items, 301, '戦');
-setHomingMissile(items, 338, 'ナ');
-setHomingMissile(items, 379, '黒'); // P5
-setHomingMissile(items, 419, '戦');
-setHomingMissile(items, 459, 'ナ'); // P6
-setHomingMissile(items, 499, 'ナ');
-setHomingMissile(items, 539, 'ナ');
-setHomingMissile(items, 579, 'ナ'); // P7
-setHomingMissile(items, 619, 'ナ');
+homingMissileSetter(25, 'ナ'); // P1
+homingMissileSetter(65, '詩');
+homingMissileSetter(102, 'ナ'); // P2
+homingMissileSetter(121, '戦');
+homingMissileSetter(141, '戦');
+homingMissileSetter(161, 'ナ');
+homingMissileSetter(181, 'ナ'); // P3
+homingMissileSetter(201, '全');
+homingMissileSetter(221, 'ナ');
+homingMissileSetter(236, 'ナ');
+homingMissileSetter(262, '詩'); // P4
+homingMissileSetter(276, '戦');
+homingMissileSetter(301, '戦');
+homingMissileSetter(338, 'ナ');
+homingMissileSetter(379, '黒'); // P5
+homingMissileSetter(419, '戦');
+homingMissileSetter(459, 'ナ'); // P6
+homingMissileSetter(499, 'ナ');
+homingMissileSetter(539, 'ナ');
+homingMissileSetter(579, 'ナ'); // P7
+homingMissileSetter(619, 'ナ');
 
 /* 気化爆弾 */
-setGaseousBomb(items, 34); // P1
-setGaseousBomb(items, 74);
-setGaseousBomb(items, 110); // P2
-setGaseousBomb(items, 150);
-setGaseousBomb(items, 190); // P3
-setGaseousBomb(items, 230);
-setGaseousBomb(items, 270); // P4
-setGaseousBomb(items, 309);
-setGaseousBomb(items, 391); // P5
-setGaseousBomb(items, 466); // P6
-setGaseousBomb(items, 550);
-setGaseousBomb(items, 629); // P7
+gaseousBombSetter(34); // P1
+gaseousBombSetter(74);
+gaseousBombSetter(110); // P2
+gaseousBombSetter(150);
+gaseousBombSetter(190); // P3
+gaseousBombSetter(230);
+gaseousBombSetter(270); // P4
+gaseousBombSetter(309);
+gaseousBombSetter(391); // P5
+gaseousBombSetter(466); // P6
+gaseousBombSetter(550);
+gaseousBombSetter(629); // P7
 
 /* アラガンフィールド */
 /* 詠唱開始の時間を入れる */
-setAllaganField(items, 89); // P2
-setAllaganField(items, 128);
-setAllaganField(items, 170); // P3
-setAllaganField(items, 210);
-setAllaganField(items, 251); // P4
-setAllaganField(items, 290);
-setAllaganField(items, 325);
-setAllaganField(items, 329);
-setAllaganField(items, 365); // P5
-setAllaganField(items, 369);
-setAllaganField(items, 405);
-setAllaganField(items, 409);
-setAllaganField(items, 445);
-setAllaganField(items, 449);
-setAllaganField(items, 485); // P6
-setAllaganField(items, 489);
-setAllaganField(items, 525);
-setAllaganField(items, 529);
-setAllaganField(items, 565); // P7
-setAllaganField(items, 569);
-setAllaganField(items, 605);
-setAllaganField(items, 609);
+allaganFieldSetter(89); // P2
+allaganFieldSetter(128);
+allaganFieldSetter(170); // P3
+allaganFieldSetter(210);
+allaganFieldSetter(251); // P4
+allaganFieldSetter(290);
+allaganFieldSetter(325);
+allaganFieldSetter(329);
+allaganFieldSetter(365); // P5
+allaganFieldSetter(369);
+allaganFieldSetter(405);
+allaganFieldSetter(409);
+allaganFieldSetter(445);
+allaganFieldSetter(449);
+allaganFieldSetter(485); // P6
+allaganFieldSetter(489);
+allaganFieldSetter(525);
+allaganFieldSetter(529);
+allaganFieldSetter(565); // P7
+allaganFieldSetter(569);
+allaganFieldSetter(605);
+allaganFieldSetter(609);
 
 /* バリスティックミサイル */
-setBallisticMissile(items, 81);
-setBallisticMissile(items, 162);
-setBallisticMissile(items, 243);
-setBallisticMissile(items, 344);
-setBallisticMissile(items, 422);
-setBallisticMissile(items, 502);
-setBallisticMissile(items, 581);
+ballisticMissileSetter(81);
+ballisticMissileSetter(162);
+ballisticMissileSetter(243);
+ballisticMissileSetter(344);
+ballisticMissileSetter(422);
+ballisticMissileSetter(502);
+ballisticMissileSetter(581);
 
 /* 地雷塔○ */
-/* items, 塔が始まる時刻, 入る時刻, 入る人, メーターが上がる時間 */
-setMineTower(items, 15, 26, ['戦'], 15);
-setMineTower(items, 164, 167, ['詩', '学'], 15);
-setMineTower(items, 243, 247, [], 15);
-setMineTower(items, 352, 355, ['モ', '竜', '黒'], 15);
-setMineTower(items, 548, 551, ['白', '学'], 15);
+mineTowerSetter(15, 15 + 15 * 3, ['戦']);
+mineTowerSetter(164, 164 + 15 * 2, ['詩', '学']);
+mineTowerSetter(243, 243 + 15 * 4, []);
+mineTowerSetter(352, 352 + 20 * 1, ['モ', '竜', '黒']);
+mineTowerSetter(548, 548 + 20 * 2, ['白', '学']);
+
 /* ドレッド塔□ */
-setDreadnaughtTower(items, 15, 18, ['白', '学', '詩'], 15);
-setDreadnaughtTower(items, 86, 89, ['竜', 'ナ'], 15);
-setDreadnaughtTower(items, 243, 247, ['竜', 'ナ'], 15);
-setDreadnaughtTower(items, 352, 247, ['白', '学'], 20);
-setDreadnaughtTower(items, 548, 548, [], 20);
+dreadnaughtTowerSetter(15, 15 + 15 * 1, ['白', '学', '詩']);
+dreadnaughtTowerSetter(86, 86 + 15 * 2, ['竜', 'ナ']);
+dreadnaughtTowerSetter(243, 243 + 15 * 2, ['竜', 'ナ']);
+dreadnaughtTowerSetter(352, 352 + 20 * 2, ['白', '学']);
+dreadnaughtTowerSetter(548, 548 + 20 * 4, []);
+
 /* HP低下塔△ */
-setHpdownTower1(items, 86, [], 15);
-setHpdownTower1(items, 164, [], 15);
-setHpdownTower1(items, 352, [], 20);
-setHpdownTower1(items, 450, ['竜', '詩', '黒'], 20);
-setHpdownTower2(items, 450, ['モ'], 20);
+hpdownTowerSetter1(86, 86+15*4, []);
+hpdownTowerSetter1(164, 164+15*4, []);
+hpdownTowerSetter1(352, 352+20*4, []);
+hpdownTowerSetter1(450, 450+20*1, ['竜', '詩', '黒']);
+hpdownTowerSetter2(450, 450+20*3, ['モ']);
 
 /* 防衛反応塔で特別に踏む時間の指定がある場合 */
-
-// setCriticalSpan(items, 123, 130, '黒', 'tw_sflake1');
-// setCriticalSpan(items, 403, 407, '戦', 'tw_sflake1');
-// setCriticalSpan(items, 483, 486, 'ナ', 'tw_sflake1');
-// setCriticalSpan(items, 523, 526, '戦', 'tw_sflake2');
-// setCriticalSpan(items, 563, 567, 'ナ', 'tw_sflake1');
-// setCriticalSpan(items, 603, 607, '戦', 'tw_sflake2');
 var critPlayer = [{
   player: '黒',
   since: 123,
@@ -527,7 +471,7 @@ var critPlayer = [{
 }, {
   player: '戦',
   since: 523,
-  until: 536,
+  until: 526,
 }, {
   player: 'ナ',
   since: 563,
@@ -539,16 +483,14 @@ var critPlayer = [{
 }];
 
 /* 防衛反応塔× */
-setSnowflakeTower1(items, 86, 130, ['モ'], critPlayer[0]);
-setSnowflakeTower1(items, 164, 209, ['白']);
-setSnowflakeTower1(items, 243, 288, ['モ']);
-setSnowflakeTower1(items, 352, 406, ['ナ'], critPlayer[1]);
-setSnowflakeTower1(items, 450, 486, ['白', '学'], critPlayer[2]);
-setSnowflakeTower2(items, 450, 526, [], critPlayer[3]);
-setSnowflakeTower1(items, 548, 567, ['竜', '詩', '黒'], critPlayer[4]);
-setSnowflakeTower2(items, 548, 609, ['モ'], critPlayer[5]);
-
-console.log(crit_tab);
+snowflakeTowerSetter1(86, 130, ['モ'], critPlayer[0]);
+snowflakeTowerSetter1(164, 209, ['白']);
+snowflakeTowerSetter1(243, 288, ['モ']);
+snowflakeTowerSetter1(352, 406, ['ナ'], critPlayer[1]);
+snowflakeTowerSetter1(450, 486, ['白', '学'], critPlayer[2]);
+snowflakeTowerSetter2(450, 526, [], critPlayer[3]);
+snowflakeTowerSetter1(548, 567, ['竜', '詩', '黒'], critPlayer[4]);
+snowflakeTowerSetter2(548, 607, ['モ'], critPlayer[5]);
 
 // create visualization
 var container = document.getElementById('visualization');
@@ -575,14 +517,13 @@ var timeline = new vis.Timeline(container);
 timeline.setOptions(options);
 timeline.setGroups(groups);
 timeline.setItems(items);
-timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(0, 's'));
+timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(440, 's'));
 timeline.setWindow(BASE_TIME.clone().subtract(3, 's'), BASE_TIME.clone().add(time_half_canvas * 2, 's'));
 
 hm_tab.unshift([0, ""]);
 hm_tab.push([648, ""]);
 
 var widgetUpdater = widget(timeline, hm_tab);
-console.log(tw_tab);
 
 setInterval("autoScroll(timeline,is_auto)", 1000);
 setInterval(function() {
