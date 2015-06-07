@@ -1,4 +1,4 @@
-var autoScroll = function(tl, is_auto) {
+function autoScroll(tl, is_auto) {
   if (is_auto == true) {
     tl.moveTo(tl.getCurrentTime(), {
       animate: false
@@ -10,10 +10,20 @@ function refresh(tl, time) {
   tl.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(time, 's'));
 }
 
+function indexCorrector(idx) {
+  if (idx < 0) {
+    return 0;
+  }
+  if (idx > 6) {
+    return 6;
+  }
+  return idx;
+}
+
 // time to phase
 function t2ph(time) {
-  for (var i = 0; i < ph_tab.length; i++) {
-    if (ph_tab[i] > time) {
+  for (var i = 0; i < PHASE_TIME_TABLE.length; i++) {
+    if (PHASE_TIME_TABLE[i] > time) {
       return i;
     }
   }
@@ -30,7 +40,6 @@ var twTabSetter = function(mark, time, player) {
   });
   crit_tab[idx].push(null);
 }
-
 
 var critSpanSetter = function(time, crit) {
   crit_tab[t2ph(time) - 1].push(crit);
@@ -253,15 +262,14 @@ var snowflakeTowerSetter2 = (function() {
   return set;
 })();
 
+/* オートスクロールのためのフラグ */
 var is_auto = true;
+
+/* 時刻の基点 */
 var BASE_TIME = moment([2015, 1, 1, 0, 0, 0, 0]);
 
 // 中央から左端までの距離（時間）
 var time_half_canvas = 30;
-
-// create a data set with groups
-var names = ['HM', '気化', 'AF', 'BM', 'ドレッド', '地雷○', '全体攻撃×', 'ドレッド□', '低下△'];
-var member = ['戦', 'ナ', '白', '学', 'モ', '竜', '詩', '黒'];
 
 // ウィジェットのための時刻表
 var hm_tab = [];
@@ -322,7 +330,6 @@ var groups = new vis.DataSet([{
   subgroupOrder: 'subgroupOrder'
 }, ]);
 
-var ph_tab = [0, 86, 164, 243, 352, 450, 548, 648];
 var tw_tab = Array(7);
 var crit_tab = Array(7);
 for (var i = 0; i < tw_tab.length; i++) {
@@ -331,132 +338,73 @@ for (var i = 0; i < tw_tab.length; i++) {
 }
 
 // create a dataset with items
-// homing_missile:ホーミングミサイル, gaseous_bomb:気化爆弾, 防衛反応:diffensive reaction, HPダウン:hpdown, af爆発: critical surge
-// ballistic_missle: バリスティックミサイル
 var items = new vis.DataSet([]);
 
-/* ディフュージョンレイ */
-diffusionRaySetter(5); // P1
-diffusionRaySetter(26);
-diffusionRaySetter(41);
-diffusionRaySetter(56);
-diffusionRaySetter(75);
-diffusionRaySetter(94); // P2
-diffusionRaySetter(111);
-diffusionRaySetter(125);
-diffusionRaySetter(142);
-diffusionRaySetter(174); // P3
-diffusionRaySetter(191);
-diffusionRaySetter(205);
-diffusionRaySetter(222);
-diffusionRaySetter(255); // P4
-diffusionRaySetter(271);
-diffusionRaySetter(285);
-diffusionRaySetter(302);
-diffusionRaySetter(316);
-diffusionRaySetter(356); // P5
-diffusionRaySetter(396);
-diffusionRaySetter(436);
-diffusionRaySetter(477); // P6
-diffusionRaySetter(516);
-diffusionRaySetter(556); // P7
-diffusionRaySetter(597);
-diffusionRaySetter(637);
+/*
+ * 編集可ここから
+ */
+
+/* フェーズ切り替えの時刻 */
+var PHASE_TIME_TABLE = [0, 86, 164, 243, 352, 450, 548, 648];
+
+/* ディフュージョンレイのテーブル */
+var DIFFUSION_RAY_TIME_TABLE = [
+  5, 26, 41, 56, 75,
+  94, 111, 125, 142,
+  174, 191, 205, 222,
+  255, 271, 285, 302, 316,
+  356, 396, 436,
+  477, 516,
+  556, 597, 637
+];
+
+/* アラガンフィールドの詠唱開始時刻のテーブル */
+var ALLAGAN_FIELD_TIME_TABLE = [
+  89, 128,
+  170, 210,
+  251, 290, 325, 329,
+  365, 369, 405, 409, 445, 449,
+  485, 489, 525, 529,
+  565, 569, 605, 609
+];
+
+/* 気化爆弾のテーブル */
+var GASEOUS_BOMB_TIME_TABLE = [
+  34, 74, 110, 150, 190, 230, 270, 309, 391, 466, 550, 629
+];
+
+/* バリスティックミサイルのテーブル */
+var BALLISTIC_MISSILE_TIME_TABLE = [
+  81, 162, 243, 344, 422, 502, 581
+];
 
 /* ホーミングミサイル */
-homingMissileSetter(25, 'ナ'); // P1
-homingMissileSetter(65, '詩');
-homingMissileSetter(102, 'ナ'); // P2
-homingMissileSetter(121, '戦');
-homingMissileSetter(141, '戦');
-homingMissileSetter(161, 'ナ');
-homingMissileSetter(181, 'ナ'); // P3
-homingMissileSetter(201, '全');
-homingMissileSetter(221, 'ナ');
-homingMissileSetter(236, 'ナ');
-homingMissileSetter(262, '詩'); // P4
-homingMissileSetter(276, '戦');
-homingMissileSetter(301, '戦');
-homingMissileSetter(338, 'ナ');
-homingMissileSetter(379, '黒'); // P5
-homingMissileSetter(419, '戦');
-homingMissileSetter(459, 'ナ'); // P6
-homingMissileSetter(499, 'ナ');
-homingMissileSetter(539, 'ナ');
-homingMissileSetter(579, 'ナ'); // P7
-homingMissileSetter(619, 'ナ');
-
-/* 気化爆弾 */
-gaseousBombSetter(34); // P1
-gaseousBombSetter(74);
-gaseousBombSetter(110); // P2
-gaseousBombSetter(150);
-gaseousBombSetter(190); // P3
-gaseousBombSetter(230);
-gaseousBombSetter(270); // P4
-gaseousBombSetter(309);
-gaseousBombSetter(391); // P5
-gaseousBombSetter(466); // P6
-gaseousBombSetter(550);
-gaseousBombSetter(629); // P7
-
-/* アラガンフィールド */
-/* 詠唱開始の時間を入れる */
-allaganFieldSetter(89); // P2
-allaganFieldSetter(128);
-allaganFieldSetter(170); // P3
-allaganFieldSetter(210);
-allaganFieldSetter(251); // P4
-allaganFieldSetter(290);
-allaganFieldSetter(325);
-allaganFieldSetter(329);
-allaganFieldSetter(365); // P5
-allaganFieldSetter(369);
-allaganFieldSetter(405);
-allaganFieldSetter(409);
-allaganFieldSetter(445);
-allaganFieldSetter(449);
-allaganFieldSetter(485); // P6
-allaganFieldSetter(489);
-allaganFieldSetter(525);
-allaganFieldSetter(529);
-allaganFieldSetter(565); // P7
-allaganFieldSetter(569);
-allaganFieldSetter(605);
-allaganFieldSetter(609);
-
-/* バリスティックミサイル */
-ballisticMissileSetter(81);
-ballisticMissileSetter(162);
-ballisticMissileSetter(243);
-ballisticMissileSetter(344);
-ballisticMissileSetter(422);
-ballisticMissileSetter(502);
-ballisticMissileSetter(581);
-
-/* 地雷塔○ */
-mineTowerSetter(15, 15 + 15 * 3, ['戦']);
-mineTowerSetter(164, 164 + 15 * 2, ['詩', '学']);
-mineTowerSetter(243, 243 + 15 * 4, []);
-mineTowerSetter(352, 352 + 20 * 1, ['モ', '竜', '黒']);
-mineTowerSetter(548, 548 + 20 * 2, ['白', '学']);
-
-/* ドレッド塔□ */
-dreadnaughtTowerSetter(15, 15 + 15 * 1, ['白', '学', '詩']);
-dreadnaughtTowerSetter(86, 86 + 15 * 2, ['竜', 'ナ']);
-dreadnaughtTowerSetter(243, 243 + 15 * 2, ['竜', 'ナ']);
-dreadnaughtTowerSetter(352, 352 + 20 * 2, ['白', '学']);
-dreadnaughtTowerSetter(548, 548 + 20 * 4, []);
-
-/* HP低下塔△ */
-hpdownTowerSetter1(86, 86+15*4, []);
-hpdownTowerSetter1(164, 164+15*4, []);
-hpdownTowerSetter1(352, 352+20*4, []);
-hpdownTowerSetter1(450, 450+20*1, ['竜', '詩', '黒']);
-hpdownTowerSetter2(450, 450+20*3, ['モ']);
+var HOMING_MISSILE_TIME_TABLE = [
+  [25, 'ナ'],
+  [65, '詩'],
+  [102, 'ナ'],
+  [121, '戦'],
+  [141, '戦'],
+  [161, 'ナ'],
+  [181, 'ナ'],
+  [201, '全'],
+  [221, 'ナ'],
+  [236, 'ナ'],
+  [262, '詩'],
+  [276, '戦'],
+  [301, '戦'],
+  [338, 'ナ'],
+  [379, '黒'],
+  [419, '戦'],
+  [459, 'ナ'],
+  [499, 'ナ'],
+  [539, 'ナ'],
+  [579, 'ナ'],
+  [619, 'ナ']
+];
 
 /* 防衛反応塔で特別に踏む時間の指定がある場合 */
-var critPlayer = [{
+var CRITICAL_SPAN = [{
   player: '黒',
   since: 123,
   until: 130,
@@ -482,15 +430,65 @@ var critPlayer = [{
   until: 607,
 }];
 
+/* 地雷塔○ */
+mineTowerSetter(15, 15 + 15 * 3, ['戦']);
+mineTowerSetter(164, 164 + 15 * 2, ['詩', '学']);
+mineTowerSetter(243, 243 + 15 * 4, []);
+mineTowerSetter(352, 352 + 20 * 1, ['モ', '竜', '黒']);
+mineTowerSetter(548, 548 + 20 * 2, ['白', '学']);
+
+/* ドレッド塔□ */
+dreadnaughtTowerSetter(15, 15 + 15 * 1, ['白', '学', '詩']);
+dreadnaughtTowerSetter(86, 86 + 15 * 2, ['竜', 'ナ']);
+dreadnaughtTowerSetter(243, 243 + 15 * 2, ['竜', 'ナ']);
+dreadnaughtTowerSetter(352, 352 + 20 * 2, ['白', '学']);
+dreadnaughtTowerSetter(548, 548 + 20 * 4, []);
+
+/* HP低下塔△ */
+hpdownTowerSetter1(86, 86 + 15 * 4, []);
+hpdownTowerSetter1(164, 164 + 15 * 4, []);
+hpdownTowerSetter1(352, 352 + 20 * 4, []);
+hpdownTowerSetter1(450, 450 + 20 * 1, ['竜', '詩', '黒']);
+hpdownTowerSetter2(450, 450 + 20 * 3, ['モ']);
+
 /* 防衛反応塔× */
-snowflakeTowerSetter1(86, 130, ['モ'], critPlayer[0]);
+snowflakeTowerSetter1(86, 130, ['モ'], CRITICAL_SPAN[0]);
 snowflakeTowerSetter1(164, 209, ['白']);
 snowflakeTowerSetter1(243, 288, ['モ']);
-snowflakeTowerSetter1(352, 406, ['ナ'], critPlayer[1]);
-snowflakeTowerSetter1(450, 486, ['白', '学'], critPlayer[2]);
-snowflakeTowerSetter2(450, 526, [], critPlayer[3]);
-snowflakeTowerSetter1(548, 567, ['竜', '詩', '黒'], critPlayer[4]);
-snowflakeTowerSetter2(548, 607, ['モ'], critPlayer[5]);
+snowflakeTowerSetter1(352, 406, ['ナ'], CRITICAL_SPAN[1]);
+snowflakeTowerSetter1(450, 486, ['白', '学'], CRITICAL_SPAN[2]);
+snowflakeTowerSetter2(450, 526, [], CRITICAL_SPAN[3]);
+snowflakeTowerSetter1(548, 567, ['竜', '詩', '黒'], CRITICAL_SPAN[4]);
+snowflakeTowerSetter2(548, 607, ['モ'], CRITICAL_SPAN[5]);
+
+/*
+ * 編集可ここまで
+ */
+
+ /* ディフュージョンレイ */
+ for (var i = 0; i < DIFFUSION_RAY_TIME_TABLE.length; i++) {
+   diffusionRaySetter(DIFFUSION_RAY_TIME_TABLE[i]);
+ }
+
+ /* 気化爆弾 */
+ for (var i = 0; i < GASEOUS_BOMB_TIME_TABLE.length; i++) {
+   gaseousBombSetter(GASEOUS_BOMB_TIME_TABLE[i]);
+ }
+
+ /* アラガンフィールド */
+ for (var i = 0; i < ALLAGAN_FIELD_TIME_TABLE.length; i++) {
+   allaganFieldSetter(ALLAGAN_FIELD_TIME_TABLE[i]);
+ }
+
+ /* バリスティックミサイル */
+ for (var i = 0; i < BALLISTIC_MISSILE_TIME_TABLE.length; i++) {
+   ballisticMissileSetter(BALLISTIC_MISSILE_TIME_TABLE[i]);
+ }
+
+ /* ホーミングミサイル */
+ for (var i = 0; i < HOMING_MISSILE_TIME_TABLE.length; i++) {
+   homingMissileSetter(HOMING_MISSILE_TIME_TABLE[i][0], HOMING_MISSILE_TIME_TABLE[i][1]);
+ }
 
 // create visualization
 var container = document.getElementById('visualization');
@@ -531,6 +529,8 @@ setInterval(function() {
 }, 1000);
 setInterval("widgetUpdater()", 1000);
 
+
+/* 以下、HTMLのボタン対応 */
 document.getElementById('auto_scroll').onclick = function() {
   is_auto = !is_auto
 };
@@ -545,30 +545,20 @@ document.getElementById('toggle_widget').onclick = function() {
   $('div#widget').toggle();
 }
 
-var indexCorrector = function(idx) {
-  if (idx < 0) {
-    return 0;
-  }
-  if (idx > 6) {
-    return 6;
-  }
-  return idx;
-}
-
 document.getElementById('next_phase').onclick = function() {
   var curr = currentTimeToSec();
-  var next_idx = indexCorrector((t2ph(curr)-1)+1);
-  timeline.setCurrentTime(BASE_TIME.clone().add(ph_tab[next_idx], 's').add(time_half_canvas, 's'));
+  var next_idx = indexCorrector((t2ph(curr) - 1) + 1);
+  timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[next_idx], 's').add(time_half_canvas, 's'));
 }
 
 document.getElementById('prev_phase').onclick = function() {
   var curr = currentTimeToSec();
-  var prev_idx = indexCorrector((t2ph(curr)-1)-1);
-  timeline.setCurrentTime(BASE_TIME.clone().add(ph_tab[prev_idx], 's').add(time_half_canvas, 's'));
+  var prev_idx = indexCorrector((t2ph(curr) - 1) - 1);
+  timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[prev_idx], 's').add(time_half_canvas, 's'));
 }
 
 document.getElementById('curr_phase').onclick = function() {
   var curr = currentTimeToSec();
-  var curr_idx = indexCorrector(t2ph(curr)-1);
-  timeline.setCurrentTime(BASE_TIME.clone().add(ph_tab[curr_idx], 's').add(time_half_canvas, 's'));
+  var curr_idx = indexCorrector(t2ph(curr) - 1);
+  timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[curr_idx], 's').add(time_half_canvas, 's'));
 }
