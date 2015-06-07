@@ -21,22 +21,20 @@ function t2ph(time) {
   return 0;
 }
 
-function towerTable() {
-  var s = 0;
-  var switcher = function() {
-    s++;
-    if (s > 3)
-      s = 0;
-  }
 
-  function setter(mark, time, player) {
-    tw_tab[t2ph(time) - 1].push({
-      mark: mark,
-      time: time,
-      player: player
-    });
-  }
-  return setter;
+var twTabSetter = function(mark, time, player) {
+  var idx = t2ph(time) - 1;
+  tw_tab[idx].push({
+    mark: mark,
+    time: time,
+    player: player
+  });
+  crit_tab[idx].push(null);
+}
+
+
+var critSpanSetter = function(time, crit) {
+  crit_tab[t2ph(time) - 1].push(crit);
 }
 
 var widget = function(tl, hmt) {
@@ -59,13 +57,24 @@ var widget = function(tl, hmt) {
 
     $("p#phase").html("Phase" + phase);
 
-    var l = tw_tab[phase-1].length;
+    var l = tw_tab[phase - 1].length;
     for (var i = 0; i < 4; i++) {
-      if(i < l) {
-        $("p#tw" + (i+1) + " > span.tw_mark").html(tw_tab[phase - 1][i].mark);
-        $("p#tw" + (i+1) + " > span.player").html(tw_tab[phase - 1][i].player);
+      if (i < l) {
+        $("p#tw" + (i + 1) + " > span.tw_mark").html(tw_tab[phase - 1][i].mark);
+        $("p#tw" + (i + 1) + " > span.player").html(tw_tab[phase - 1][i].player);
+        if (crit_tab[phase - 1][i] != null) {
+          var t = crit_tab[phase - 1][i].since - curr_time;
+          if (t >= 0) {
+            $("p#tw" + (i + 1) + " > span.critical").html(crit_tab[phase - 1][i].player + '(' + t + 's)');
+          } else {
+            $("p#tw" + (i + 1) + " > span.critical").html(crit_tab[phase - 1][i].player);
+          }
+        } else {
+          $("p#tw" + (i + 1) + " > span.critical").html("");
+        }
       } else {
-        $("p#tw" + (i+1) + " > span.tw_mark").html("");
+        $("p#tw" + (i + 1) + " > span.tw_mark").html("");
+        $("p#tw" + (i + 1) + " > span.critical").html("");
       }
 
     }
@@ -230,7 +239,7 @@ function setHpdownTower2(items, time_start, mb, quarter) {
   c_tw_hpdown++;
 }
 
-function setSnowflakeTower1(items, time_start, time_end, mb) {
+function setSnowflakeTower1(items, time_start, time_end, mb, crit) {
   items.add([{
     id: 'tw_sflake_' + c_tw_sflake,
     group: 'tw_sflake1',
@@ -240,10 +249,15 @@ function setSnowflakeTower1(items, time_start, time_end, mb) {
     type: 'background'
   }]);
   twTabSetter('×', time_start, mb);
+  crit_tab[t2ph(time_start) - 1].pop(); // 姑息な手
+  if (crit != null) {
+    setCriticalSpan(items, crit.since, crit.until, crit.player, 'tw_sflake1'); // 下と統合予定
+    critSpanSetter(time_start, crit);
+  }
   c_tw_sflake++;
 }
 
-function setSnowflakeTower2(items, time_start, time_end, mb) {
+function setSnowflakeTower2(items, time_start, time_end, mb, crit) {
   items.add([{
     id: 'tw_sflake_' + c_tw_sflake,
     group: 'tw_sflake2',
@@ -253,6 +267,11 @@ function setSnowflakeTower2(items, time_start, time_end, mb) {
     type: 'background'
   }]);
   twTabSetter('×', time_start, mb);
+  crit_tab[t2ph(time_start) - 1].pop(); // 姑息な手
+  if (crit != null) {
+    setCriticalSpan(items, crit.since, crit.until, crit.player, 'tw_sflake2'); // 下と統合予定
+    critSpanSetter(time_start, crit);
+  }
   c_tw_sflake++;
 }
 
@@ -268,7 +287,6 @@ function setCriticalSpan(items, time_start, time_end, mb, group) {
   }]);
   c_slack++;
 }
-
 
 
 c_diff_ray = 0;
@@ -353,18 +371,14 @@ var groups = new vis.DataSet([{
   subgroupOrder: 'subgroupOrder'
 }, ]);
 
-
-
 var ph_tab = [0, 86, 164, 243, 352, 450, 548, 648];
 var twTabSetter;
 var tw_tab = Array(7);
 var crit_tab = Array(7);
 for (var i = 0; i < tw_tab.length; i++) {
   tw_tab[i] = Array();
-  crit_tab[i] = Array(4);
+  crit_tab[i] = Array();
 }
-
-twTabSetter = towerTable();
 
 // create a dataset with items
 // homing_missile:ホーミングミサイル, gaseous_bomb:気化爆弾, 防衛反応:diffensive reaction, HPダウン:hpdown, af爆発: critical surge
@@ -489,24 +503,52 @@ setHpdownTower1(items, 164, [], 15);
 setHpdownTower1(items, 352, [], 20);
 setHpdownTower1(items, 450, ['竜', '詩', '黒'], 20);
 setHpdownTower2(items, 450, ['モ'], 20);
-/* 防衛反応塔× */
-setSnowflakeTower1(items, 86, 130, ['モ']);
-setSnowflakeTower1(items, 164, 209, ['白']);
-setSnowflakeTower1(items, 243, 288, ['モ']);
-setSnowflakeTower1(items, 352, 406, ['ナ']);
-setSnowflakeTower1(items, 450, 486, ['白', '学']);
-setSnowflakeTower2(items, 450, 526, []);
-setSnowflakeTower1(items, 548, 567, ['竜', '詩', '黒']);
-setSnowflakeTower2(items, 548, 609, ['モ']);
-
 
 /* 防衛反応塔で特別に踏む時間の指定がある場合 */
-setCriticalSpan(items, 123, 130, '黒', 'tw_sflake1');
-setCriticalSpan(items, 403, 407, '戦', 'tw_sflake1');
-setCriticalSpan(items, 483, 486, 'ナ', 'tw_sflake1');
-setCriticalSpan(items, 523, 526, '戦', 'tw_sflake2');
-setCriticalSpan(items, 563, 567, 'ナ', 'tw_sflake1');
-setCriticalSpan(items, 603, 607, '戦', 'tw_sflake2');
+
+// setCriticalSpan(items, 123, 130, '黒', 'tw_sflake1');
+// setCriticalSpan(items, 403, 407, '戦', 'tw_sflake1');
+// setCriticalSpan(items, 483, 486, 'ナ', 'tw_sflake1');
+// setCriticalSpan(items, 523, 526, '戦', 'tw_sflake2');
+// setCriticalSpan(items, 563, 567, 'ナ', 'tw_sflake1');
+// setCriticalSpan(items, 603, 607, '戦', 'tw_sflake2');
+var critPlayer = [{
+  player: '黒',
+  since: 123,
+  until: 130,
+}, {
+  player: '戦',
+  since: 403,
+  until: 407,
+}, {
+  player: 'ナ',
+  since: 483,
+  until: 486,
+}, {
+  player: '戦',
+  since: 523,
+  until: 536,
+}, {
+  player: 'ナ',
+  since: 563,
+  until: 567,
+}, {
+  player: '戦',
+  since: 603,
+  until: 607,
+}];
+
+/* 防衛反応塔× */
+setSnowflakeTower1(items, 86, 130, ['モ'], critPlayer[0]);
+setSnowflakeTower1(items, 164, 209, ['白']);
+setSnowflakeTower1(items, 243, 288, ['モ']);
+setSnowflakeTower1(items, 352, 406, ['ナ'], critPlayer[1]);
+setSnowflakeTower1(items, 450, 486, ['白', '学'], critPlayer[2]);
+setSnowflakeTower2(items, 450, 526, [], critPlayer[3]);
+setSnowflakeTower1(items, 548, 567, ['竜', '詩', '黒'], critPlayer[4]);
+setSnowflakeTower2(items, 548, 609, ['モ'], critPlayer[5]);
+
+console.log(crit_tab);
 
 // create visualization
 var container = document.getElementById('visualization');
@@ -533,7 +575,7 @@ var timeline = new vis.Timeline(container);
 timeline.setOptions(options);
 timeline.setGroups(groups);
 timeline.setItems(items);
-timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's'));
+timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(0, 's'));
 timeline.setWindow(BASE_TIME.clone().subtract(3, 's'), BASE_TIME.clone().add(time_half_canvas * 2, 's'));
 
 hm_tab.unshift([0, ""]);
@@ -557,3 +599,7 @@ document.getElementById('refresh').onclick = function() {
 document.getElementById('refresh_10s').onclick = function() {
   refresh(timeline, -10)
 };
+
+document.getElementById('toggle_widget').onclick = function() {
+  $('div#widget').toggle();
+}
