@@ -517,7 +517,7 @@ var timeline = new vis.Timeline(container);
 timeline.setOptions(options);
 timeline.setGroups(groups);
 timeline.setItems(items);
-timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(440, 's'));
+timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(0, 's'));
 timeline.setWindow(BASE_TIME.clone().subtract(3, 's'), BASE_TIME.clone().add(time_half_canvas * 2, 's'));
 
 hm_tab.unshift([0, ""]);
