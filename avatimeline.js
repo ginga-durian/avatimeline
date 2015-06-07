@@ -21,7 +21,6 @@ function t2ph(time) {
   return 0;
 }
 
-
 var twTabSetter = function(mark, time, player) {
   var idx = t2ph(time) - 1;
   tw_tab[idx].push({
@@ -37,13 +36,14 @@ var critSpanSetter = function(time, crit) {
   crit_tab[t2ph(time) - 1].push(crit);
 }
 
+function currentTimeToSec() {
+  return moment(timeline.getCurrentTime()).unix() - BASE_TIME.unix() - time_half_canvas;
+}
+
 var widget = function(tl, hmt) {
   var timeline = tl;
   var hm_tab = hmt;
-  var currentTimeToSec = function() {
-    var curr_time = moment(timeline.getCurrentTime()).unix() - BASE_TIME.unix() - time_half_canvas;
-    return curr_time;
-  }
+  var curr_time = currentTimeToSec();
 
   function update() {
     curr_time = currentTimeToSec();
@@ -543,4 +543,32 @@ document.getElementById('refresh_10s').onclick = function() {
 
 document.getElementById('toggle_widget').onclick = function() {
   $('div#widget').toggle();
+}
+
+var indexCorrector = function(idx) {
+  if (idx < 0) {
+    return 0;
+  }
+  if (idx > 6) {
+    return 6;
+  }
+  return idx;
+}
+
+document.getElementById('next_phase').onclick = function() {
+  var curr = currentTimeToSec();
+  var next_idx = indexCorrector((t2ph(curr)-1)+1);
+  timeline.setCurrentTime(BASE_TIME.clone().add(ph_tab[next_idx], 's').add(time_half_canvas, 's'));
+}
+
+document.getElementById('prev_phase').onclick = function() {
+  var curr = currentTimeToSec();
+  var prev_idx = indexCorrector((t2ph(curr)-1)-1);
+  timeline.setCurrentTime(BASE_TIME.clone().add(ph_tab[prev_idx], 's').add(time_half_canvas, 's'));
+}
+
+document.getElementById('curr_phase').onclick = function() {
+  var curr = currentTimeToSec();
+  var curr_idx = indexCorrector(t2ph(curr)-1);
+  timeline.setCurrentTime(BASE_TIME.clone().add(ph_tab[curr_idx], 's').add(time_half_canvas, 's'));
 }
