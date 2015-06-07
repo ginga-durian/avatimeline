@@ -83,6 +83,7 @@ var widget = function(tl, hmt) {
         }
       } else {
         $("p#tw" + (i + 1) + " > span.tw_mark").html("");
+        $("p#tw" + (i + 1) + " > span.player").html("");
         $("p#tw" + (i + 1) + " > span.critical").html("");
       }
 
@@ -523,6 +524,7 @@ hm_tab.push([648, ""]);
 
 var widgetUpdater = widget(timeline, hm_tab);
 
+/* 1000ms毎に呼び出す関数 */
 setInterval("autoScroll(timeline,is_auto)", 1000);
 setInterval(function() {
   timeline.setCustomTime(moment(timeline.getCurrentTime()).subtract(time_half_canvas, 's').toDate());
