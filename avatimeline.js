@@ -11,7 +11,7 @@
     tl.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(time, 's'));
   }
 
-  function indexCorrector(idx) {
+  function correctIndex(idx) {
     if (idx < 0) {
       return 0;
     }
@@ -317,14 +317,16 @@
     subgroupOrder: 'subgroupOrder'
   }, ]);
 
+  /* ウィジェットのための、フェーズと担当者を格納する配列 */
   var tw_tab = Array(7);
+  /* ウィジェットのための、フェーズと特別に踏む期間に指定がある担当者を格納する配列 */
   var crit_tab = Array(7);
   for (var i = 0; i < tw_tab.length; i++) {
     tw_tab[i] = Array();
     crit_tab[i] = Array();
   }
 
-  // create a dataset with items
+  // タイムラインに表示するデータセットの初期化
   var items = new vis.DataSet([]);
 
   /*************************************************************
@@ -547,19 +549,19 @@
 
   document.getElementById('next_phase').onclick = function() {
     var curr = currentTimeToSec();
-    var next_idx = indexCorrector((t2ph(curr) - 1) + 1);
+    var next_idx = correctIndex((t2ph(curr) - 1) + 1);
     timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[next_idx], 's').add(time_half_canvas, 's'));
   }
 
   document.getElementById('prev_phase').onclick = function() {
     var curr = currentTimeToSec();
-    var prev_idx = indexCorrector((t2ph(curr) - 1) - 1);
+    var prev_idx = correctIndex((t2ph(curr) - 1) - 1);
     timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[prev_idx], 's').add(time_half_canvas, 's'));
   }
 
   document.getElementById('curr_phase').onclick = function() {
     var curr = currentTimeToSec();
-    var curr_idx = indexCorrector(t2ph(curr) - 1);
+    var curr_idx = correctIndex(t2ph(curr) - 1);
     timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[curr_idx], 's').add(time_half_canvas, 's'));
   }
 }());
