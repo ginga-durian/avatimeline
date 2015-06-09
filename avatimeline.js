@@ -42,10 +42,6 @@
     crit_tab[idx].push(null);
   }
 
-  var critSpanSetter = function(time, crit) {
-    crit_tab[t2ph(time) - 1].push(crit);
-  }
-
   function currentTimeToSec() {
     return moment(timeline.getCurrentTime()).unix() - BASE_TIME.unix() - time_half_canvas;
   }
@@ -92,19 +88,6 @@
     };
     return update;
   }
-
-  function setCriticalSpan(items, time_start, time_end, mb, group) {
-    items.add([{
-      id: group + c_slack,
-      group: group,
-      start: BASE_TIME.clone().add(time_start, 's'),
-      end: BASE_TIME.clone().add(time_end, 's'),
-      content: mb,
-      type: 'range'
-    }]);
-    c_slack++;
-  }
-  c_slack = 0;
 
   function itemSetterTemplate(item, id, group, content, type) {
     var item = item;
@@ -176,7 +159,7 @@
     var setter = itemSetterTemplate(items, 'a_field_', 'a_field', 'AF', 'range');
 
     function set(start) {
-      setter('', start + 2, start + 30);
+      setter('', start + 2, start + ALLAGAN_FIELD_EXISTENCE_TERM+2);
     }
     return set;
   })();
@@ -185,7 +168,7 @@
     var setter = itemSetterTemplate(items, 'b_missile_', 'b_missile', 'BM', 'range');
 
     function set(start) {
-      setter('', start, start + 3);
+      setter('', start, start + BALLISTIC_MISSILE_EXISTENCE_TERM);
     }
     return set;
   })();
@@ -196,7 +179,7 @@
 
     function set(start, end, player) {
       bSetter(player, start, end);
-      rSetter('', end, end + 15);
+      rSetter('', end, end + MINE_EXISTENCE_TERM);
       twTabSetter('○', start, player);
     }
     return set;
@@ -208,7 +191,7 @@
 
     function set(start, end, player) {
       bSetter(player, start, end);
-      rSetter('', end, end + 15);
+      rSetter('', end, end + DNAUGHT_EXISTENCE_TERM);
       twTabSetter('□', start, player);
     }
     return set;
@@ -235,30 +218,32 @@
   })();
 
   var snowflakeTowerSetter1 = (function() {
-    var setter = itemSetterTemplate(items, 'tw_sflake1_', 'tw_sflake1', '', 'background');
+    var bSetter = itemSetterTemplate(items, 'tw_sflake1_', 'tw_sflake1', '', 'background');
+    var cSetter = itemSetterTemplate(items, 'cspan1_', 'tw_sflake1', '', 'range');
 
     function set(start, end, player, crit) {
-      setter(player, start, end);
+      bSetter(player, start, end);
       twTabSetter('×', start, player);
       crit_tab[t2ph(start) - 1].pop(); // 姑息な手
       if (crit != null) {
-        setCriticalSpan(items, crit.since, crit.until, crit.player, 'tw_sflake1'); // 下と統合予定
-        critSpanSetter(start, crit);
+        cSetter(crit.player, crit.since, crit.until);
+        crit_tab[t2ph(start) - 1].push(crit);
       }
     }
     return set;
   })();
 
   var snowflakeTowerSetter2 = (function() {
-    var setter = itemSetterTemplate(items, 'tw_sflake2_', 'tw_sflake2', '', 'background');
+    var bSetter = itemSetterTemplate(items, 'tw_sflake2_', 'tw_sflake2', '', 'background');
+    var cSetter = itemSetterTemplate(items, 'cspan2_', 'tw_sflake2', '', 'range');
 
     function set(start, end, player, crit) {
-      setter(player, start, end);
+      bSetter(player, start, end);
       twTabSetter('×', start, player);
       crit_tab[t2ph(start) - 1].pop(); // 姑息な手
       if (crit != null) {
-        setCriticalSpan(items, crit.since, crit.until, crit.player, 'tw_sflake2'); // 下と統合予定
-        critSpanSetter(start, crit);
+        cSetter(crit.player, crit.since, crit.until);
+        crit_tab[t2ph(start) - 1].push(crit);
       }
     }
     return set;
@@ -342,14 +327,25 @@
   // create a dataset with items
   var items = new vis.DataSet([]);
 
-  /*
+  /*************************************************************
    * 編集可ここから
-   */
+  **************************************************************/
+  /* ドレッドノート出現から倒すまでの時間 */
+  var DNAUGHT_EXISTENCE_TERM = 25;
+
+  /* 地雷散布から処理し終えるまでの時間 */
+  var MINE_EXISTENCE_TERM = 10;
+
+  /* イナーシャストリームからバリスティックミサイルの判定が終わるまでの時間 */
+  var BALLISTIC_MISSILE_EXISTENCE_TERM = 8;
+
+  /* アラガンフィールド付着から発動までの時間 */
+  var ALLAGAN_FIELD_EXISTENCE_TERM = 30;
 
   /* フェーズ切り替えの時刻 */
   var PHASE_TIME_TABLE = [0, 86, 164, 243, 352, 450, 548, 648];
 
-  /* ディフュージョンレイのテーブル */
+  /* ディフュージョンレイ発動時刻のテーブル */
   var DIFFUSION_RAY_TIME_TABLE = [
     5, 26, 41, 56, 75,
     94, 111, 125, 142,
@@ -360,7 +356,7 @@
     556, 597, 637
   ];
 
-  /* アラガンフィールドの詠唱開始時刻のテーブル */
+  /* アラガンフィールド付着時刻のテーブル */
   var ALLAGAN_FIELD_TIME_TABLE = [
     89, 128,
     170, 210,
@@ -380,7 +376,7 @@
     81, 162, 243, 344, 422, 502, 581
   ];
 
-  /* ホーミングミサイル */
+  /* ホーミングミサイルが発動する時刻とそれを受ける担当者 */
   var HOMING_MISSILE_TIME_TABLE = [
     [25, 'ナ'],
     [65, '詩'],
@@ -405,7 +401,7 @@
     [619, 'ナ']
   ];
 
-  /* 防衛反応塔で特別に踏む時間の指定がある場合 */
+  /* 防衛反応塔で特別に踏む期間の指定がある場合 */
   var CRITICAL_SPAN = [{
     player: '黒',
     since: 123,
@@ -463,9 +459,9 @@
   snowflakeTowerSetter1(548, 567, ['竜', '詩', '黒'], CRITICAL_SPAN[4]);
   snowflakeTowerSetter2(548, 607, ['モ'], CRITICAL_SPAN[5]);
 
-  /*
+  /*************************************************************
    * 編集可ここまで
-   */
+  **************************************************************/
 
   /* ディフュージョンレイ */
   for (var i = 0; i < DIFFUSION_RAY_TIME_TABLE.length; i++) {
