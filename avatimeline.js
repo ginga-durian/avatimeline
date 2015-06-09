@@ -55,17 +55,18 @@
 
       $("p#phase").html("Phase" + phase);
 
-      var l = tw_tab[phase - 1].length;
+      var idx = correctIndex(phase - 1);
+      var l = tw_tab[idx].length;
       for (var i = 0; i < 4; i++) {
         if (i < l) {
-          $("p#tw" + (i + 1) + " > span.tw_mark").html(tw_tab[phase - 1][i].mark);
-          $("p#tw" + (i + 1) + " > span.player").html(tw_tab[phase - 1][i].player);
-          if (crit_tab[phase - 1][i] != null) {
-            var t = crit_tab[phase - 1][i].since - curr_time;
+          $("p#tw" + (i + 1) + " > span.tw_mark").html(tw_tab[idx][i].mark);
+          $("p#tw" + (i + 1) + " > span.player").html(tw_tab[idx][i].player);
+          if (crit_tab[idx][i] != null) {
+            var t = crit_tab[idx][i].since - curr_time;
             if (t >= 0) {
-              $("p#tw" + (i + 1) + " > span.critical").html(crit_tab[phase - 1][i].player + '(' + t + 's)');
+              $("p#tw" + (i + 1) + " > span.critical").html(crit_tab[idx][i].player + '(' + t + 's)');
             } else {
-              $("p#tw" + (i + 1) + " > span.critical").html(crit_tab[phase - 1][i].player);
+              $("p#tw" + (i + 1) + " > span.critical").html(crit_tab[idx][i].player);
             }
           } else {
             $("p#tw" + (i + 1) + " > span.critical").html("");
