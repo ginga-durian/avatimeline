@@ -1,14 +1,6 @@
 (function() {
-  function autoScroll() {
-    if (is_auto == true) {
-      timeline.moveTo(timeline.getCurrentTime(), {
-        animate: false
-      });
-    }
-  }
-
   function refresh(tl, time) {
-    tl.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(time, 's'));
+    tl.setCurrentTime(BASE_TIME.clone().add(time, 's'));
   }
 
   function correctIndex(idx) {
@@ -43,7 +35,7 @@
   }
 
   function currentTimeToSec() {
-    return moment(timeline.getCurrentTime()).unix() - BASE_TIME.unix() - time_half_canvas;
+    return moment(timeline.getCurrentTime()).unix() - BASE_TIME.unix();
   }
 
   var widget = function(tl, hmt) {
@@ -159,7 +151,7 @@
     var setter = itemSetterTemplate(items, 'a_field_', 'a_field', 'AF', 'range');
 
     function set(start) {
-      setter('', start + 2, start + ALLAGAN_FIELD_EXISTENCE_TERM+2);
+      setter('', start + 2, start + ALLAGAN_FIELD_EXISTENCE_TERM + 2);
     }
     return set;
   })();
@@ -250,13 +242,10 @@
   })();
 
   /* オートスクロールのためのフラグ */
-  var is_auto = true;
+  var isAutoScroll = true;
 
   /* 時刻の基点 */
   var BASE_TIME = moment([2015, 1, 1, 0, 0, 0, 0]);
-
-  // 中央から左端までの距離（時間）
-  var time_half_canvas = 30;
 
   // ウィジェットのための時刻表
   var hm_tab = [];
@@ -331,7 +320,10 @@
 
   /*************************************************************
    * 編集可ここから
-  **************************************************************/
+   ***************************************************************/
+  /* 現在時刻バーの左側の空白の長さ（秒数） */
+  var CUSTOM_TIME_BAR_PADDING = 3;
+
   /* ドレッドノート出現から倒すまでの時間 */
   var DNAUGHT_EXISTENCE_TERM = 25;
 
@@ -463,7 +455,7 @@
 
   /*************************************************************
    * 編集可ここまで
-  **************************************************************/
+   **************************************************************/
 
   /* ディフュージョンレイ */
   for (var i = 0; i < DIFFUSION_RAY_TIME_TABLE.length; i++) {
@@ -515,8 +507,17 @@
   timeline.setOptions(options);
   timeline.setGroups(groups);
   timeline.setItems(items);
-  timeline.setCurrentTime(BASE_TIME.clone().add(time_half_canvas, 's').add(0, 's'));
-  timeline.setWindow(BASE_TIME.clone().subtract(3, 's'), BASE_TIME.clone().add(time_half_canvas * 2, 's'));
+  timeline.setCurrentTime(BASE_TIME.clone().add(0, 's'));
+  timeline.setCustomTime(BASE_TIME.clone().add(0, 's'));
+
+  var tl_width = 60;
+  console.log(tl_width);
+
+  timeline.on('rangechanged', function(properties) {
+    if (properties.byUser) {
+      tl_width = moment(properties.end).unix() - moment(properties.start).unix();
+    }
+  });
 
   hm_tab.unshift([0, ""]);
   hm_tab.push([648, ""]);
@@ -524,17 +525,25 @@
   var widgetUpdater = widget(timeline, hm_tab);
 
   /* 1000ms毎に呼び出す関数 */
-  setInterval(autoScroll, 1000);
   setInterval(function() {
-    timeline.setCustomTime(moment(timeline.getCurrentTime()).subtract(time_half_canvas, 's').toDate());
+    if (isAutoScroll) {
+      var ct = moment(timeline.getCurrentTime());
+      timeline.setWindow(
+        ct.clone().subtract(CUSTOM_TIME_BAR_PADDING, 's').toDate(),
+        ct.clone().add(tl_width - CUSTOM_TIME_BAR_PADDING, 's').toDate(), {
+          animate: false
+        });
+    }
   }, 1000);
-  //setInterval("widgetUpdater()", 1000);
+  setInterval(function() {
+    timeline.setCustomTime(moment(timeline.getCurrentTime()).toDate());
+  }, 1000);
   setInterval(widgetUpdater, 1000);
 
 
   /* 以下、HTMLのボタン対応 */
   document.getElementById('auto_scroll').onclick = function() {
-    is_auto = !is_auto
+    isAutoScroll = !isAutoScroll;
   };
   document.getElementById('refresh').onclick = function() {
     refresh(timeline, 0)
@@ -550,18 +559,18 @@
   document.getElementById('next_phase').onclick = function() {
     var curr = currentTimeToSec();
     var next_idx = correctIndex((t2ph(curr) - 1) + 1);
-    timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[next_idx], 's').add(time_half_canvas, 's'));
+    timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[next_idx], 's'));
   }
 
   document.getElementById('prev_phase').onclick = function() {
     var curr = currentTimeToSec();
     var prev_idx = correctIndex((t2ph(curr) - 1) - 1);
-    timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[prev_idx], 's').add(time_half_canvas, 's'));
+    timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[prev_idx], 's'));
   }
 
   document.getElementById('curr_phase').onclick = function() {
     var curr = currentTimeToSec();
     var curr_idx = correctIndex(t2ph(curr) - 1);
-    timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[curr_idx], 's').add(time_half_canvas, 's'));
+    timeline.setCurrentTime(BASE_TIME.clone().add(PHASE_TIME_TABLE[curr_idx], 's'));
   }
 }());
